@@ -5,7 +5,8 @@ import json
 from os.path import exists
 
 from .vae_gan import VAE_GAN
-from .utils import save_model, load_model, show_and_save
+from .utils import save_model, load_model
+from torchvision.utils import save_image
 from tqdm import tqdm
 from loguru import logger
 
@@ -103,11 +104,12 @@ class MyTrainer:
                 save_model(epoch, self.model, self.device)
 
                 # Show the result from random generation
-                sample_prior = torch.randn(100, 128).to(self.device)
-                random_generated_images = self.model.decoder(sample_prior)
-                random_generated_images = (random_generated_images + 1) / 2
-                file_name = f"result_{epoch}"
-                show_and_save(file_name=file_name, img=random_generated_images.to('cpu'))
+                with torch.no_grad():
+                    sample_prior = torch.randn(32, 128).to(self.device)
+                    random_generated_images = self.model.decoder(sample_prior)
+                    random_generated_images = (random_generated_images + 1) / 2
+                    file_name = f"result_{epoch}"
+                    save_image(random_generated_images, f"./result/{file_name}.png")
 
             return self.model
 
