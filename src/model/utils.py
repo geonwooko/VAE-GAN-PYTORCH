@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 def show_and_save(file_name, img): # N X 3 X 128 X 128
-    npimg = np.transpose(img.numpy(), (0, 2, 3, 1))
+    npimg = np.transpose(img.detach().numpy(), (0, 2, 3, 1))
 
     N = int(img.shape[0] ** 0.5)
     plt.rcParams['figure.figsize'] = (8*N, 6*N)

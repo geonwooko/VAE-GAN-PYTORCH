@@ -11,3 +11,5 @@ datasets
 *.pth
 
 *.pyc
+
+*.json
