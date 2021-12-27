@@ -34,12 +34,12 @@ class MyTrainer:
         self.loss_dict['loss_discriminator'] = []
         self.loss_dict['FID'] = []
 
-        self.encoder_optimizer = torch.optim.Adam(self.model.encoder.parameters(), lr = self.hyperpm['lr'])
-        self.encoder_scheduler = torch.optim.lr_scheduler.StepLR(self.encoder_optimizer, step_size=5, gamma=0.5)
-        self.decoder_optimizer = torch.optim.Adam(self.model.decoder.parameters(), lr=self.hyperpm['lr'])
-        self.decoder_scheduler = torch.optim.lr_scheduler.StepLR(self.decoder_optimizer, step_size=5, gamma=0.5)
-        self.discriminator_optimizer = torch.optim.Adam(self.model.discriminator.parameters(), lr=self.hyperpm['lr'])
-        self.discriminator_scheduler = torch.optim.lr_scheduler.StepLR(self.discriminator_optimizer, step_size=5, gamma=0.5)
+        self.encoder_optimizer = torch.optim.RMSprop(self.model.encoder.parameters(), lr = self.hyperpm['lr'], alpha=0.9,eps=1e-8,weight_decay=0,momentum=0,centered=False)
+        self.encoder_scheduler = torch.optim.lr_scheduler.StepLR(self.encoder_optimizer, step_size=1, gamma=0.9)
+        self.decoder_optimizer = torch.optim.RMSprop(self.model.decoder.parameters(), lr=self.hyperpm['lr'], alpha=0.9,eps=1e-8,weight_decay=0,momentum=0,centered=False)
+        self.decoder_scheduler = torch.optim.lr_scheduler.StepLR(self.decoder_optimizer, step_size=1, gamma=0.9)
+        self.discriminator_optimizer = torch.optim.RMSprop(self.model.discriminator.parameters(), lr=self.hyperpm['lr'], alpha=0.9,eps=1e-8,weight_decay=0,momentum=0,centered=False)
+        self.discriminator_scheduler = torch.optim.lr_scheduler.StepLR(self.discriminator_optimizer, step_size=1, gamma=0.9)
 
     def get_loss_fid(self, X, X_recon, mean, logvar, disc_X_real, disc_X_prior, sim_X_real, sim_X_recon):
 
