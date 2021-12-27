@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F
 import numpy as np
+import json
 from os.path import exists
 
 from .vae_gan import VAE_GAN
@@ -19,6 +20,14 @@ class MyTrainer:
         self.model = VAE_GAN(hyperpm).to(self.device)
         # self.discriminator = Discriminator().to(self.device)
 
+        self.loss_dict = {}
+        self.loss_dict['KLD'] = []
+        self.loss_dict['MSE'] = []
+        self.loss_dict['GAN'] = []
+        self.loss_dict['loss_encoder'] = []
+        self.loss_dict['loss_decoder'] = []
+        self.loss_dict['loss_discriminator'] = []
+
         self.encoder_optimizer = torch.optim.Adam(self.model.encoder.parameters(), lr = self.hyperpm['lr'])
         self.decoder_optimizer = torch.optim.Adam(self.model.decoder.parameters(), lr=self.hyperpm['lr'])
 
@@ -34,16 +43,24 @@ class MyTrainer:
         loss_decoder = self.gamma * MSE - GAN
         loss_discriminator = GAN
 
+        self.loss_dict['KLD'].append(KLD)
+        self.loss_dict['MSE'].append(MSE)
+        self.loss_dict['GAN'].append(GAN)
+        self.loss_dict['loss_encoder'].append(loss_encoder)
+        self.loss_dict['loss_decoder'].append(loss_decoder)
+        self.loss_dict['loss_discriminator'].append(loss_discriminator)
+
         return KLD, MSE, GAN, loss_encoder, loss_decoder, loss_discriminator
 
 
     def train(self):
         with torch.autograd.set_detect_anomaly(True):
+
             epoch_pbar = tqdm(range(self.hyperpm['nepoch']), position = 0, leave=False, desc='epoch')
             for epoch in epoch_pbar:
                 # Save file 존재할때 불러옴
                 if exists(f'./result/parameters/VAE_GAN_decoder_{epoch}.pth'):
-                    load_model(epoch, self.model)
+                    load_model(epoch, self.model, self.device)
                     continue
 
                 losses = []
@@ -79,9 +96,11 @@ class MyTrainer:
                         f'KLD : {KLD}   MSE : {MSE} GAN : {GAN}'
                     )
                     batch_pbar.update()
+                    with f"./result/loss/{epoch}_{batch_idx}.json" as f:
+                        json.dump(self.loss_dict, f)
 
                 # Save the parameters
-                save_model(epoch, self.model)
+                save_model(epoch, self.model, self.device)
 
             # Show the result from random generation
             sample_prior = torch.randn(100, 128).to(self.device)
