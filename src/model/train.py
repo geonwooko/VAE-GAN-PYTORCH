@@ -96,7 +96,7 @@ class MyTrainer:
                         f'KLD : {KLD}   MSE : {MSE} GAN : {GAN}'
                     )
                     batch_pbar.update()
-                    with open(f"./result/loss/{epoch}_{batch_idx}.json", "wb") as f:
+                    with open(f"./result/loss/{epoch}_{batch_idx}.json", "w", encoding='utf8') as f:
                         json.dump(self.loss_dict, f)
 
                 # Save the parameters
