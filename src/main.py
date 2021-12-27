@@ -40,7 +40,7 @@ def main(in_dim = 784,
          gamma = 50,
          beta = 10,
          cudanum = 0,
-         batchsize = 100,
+         batchsize = 64,
          datadir = "./datasets/"):
 
     hyperpm = {}
