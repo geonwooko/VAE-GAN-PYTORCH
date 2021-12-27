@@ -1,7 +1,7 @@
 from torchvision import datasets, transforms
 import torch
 
-def get_CelebA_DL(data_root, cudanum, batch_size = 64):
+def get_CelebA_DL(data_root, cudanum, batch_size):
     transform_list = [ # use aligned datasets
         transforms.Resize((128, 128)),
         transforms.ToTensor(),

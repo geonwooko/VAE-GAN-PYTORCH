@@ -24,7 +24,7 @@ def generate_random_image(model):
         save_image(sample.view(64, 1, 28, 28), './sample3.png')
 
 def run_model(hyperpm):
-    CelebA_DL = get_CelebA_DL(hyperpm['datadir'])
+    CelebA_DL = get_CelebA_DL(hyperpm['datadir'], hyperpm['cudanum'], hyperpm['batchsize'])
 
     trainer = MyTrainer(CelebA_DL, hyperpm)
     model = trainer.train()
@@ -37,9 +37,10 @@ def main(in_dim = 784,
          lr = 1e-3,
          nepoch = 20,
          dropout = 1e-1,
-         gamma = 5,
-         beta = 1,
+         gamma = 50,
+         beta = 10,
          cudanum = 0,
+         batchsize = 100,
          datadir = "./datasets/"):
 
     hyperpm = {}
@@ -55,6 +56,7 @@ def main(in_dim = 784,
     hyperpm['gamma'] = gamma
     hyperpm['datadir'] = datadir
     hyperpm['beta'] = beta
+    hyperpm['batchsize'] = batchsize
     log_param(hyperpm)
 
     run_model(hyperpm)
