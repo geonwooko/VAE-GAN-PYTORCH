@@ -1,3 +1,6 @@
+import csv
+import textwrap
+
 import torch
 import torch.nn.functional as F
 import numpy as np
@@ -5,10 +8,11 @@ import json
 from os.path import exists
 
 from .vae_gan import VAE_GAN
-from .utils import save_model, load_model
+from .utils import save_model, load_model, calculate_fid
 from torchvision.utils import save_image
 from tqdm import tqdm
 from loguru import logger
+from csv import writer
 
 class MyTrainer:
     def __init__(self, DL, hyperpm):
@@ -28,13 +32,14 @@ class MyTrainer:
         self.loss_dict['loss_encoder'] = []
         self.loss_dict['loss_decoder'] = []
         self.loss_dict['loss_discriminator'] = []
+        self.loss_dict['FID'] = []
 
         self.encoder_optimizer = torch.optim.Adam(self.model.encoder.parameters(), lr = self.hyperpm['lr'])
         self.decoder_optimizer = torch.optim.Adam(self.model.decoder.parameters(), lr=self.hyperpm['lr'])
 
         self.discriminator_optimizer = torch.optim.Adam(self.model.discriminator.parameters(), lr=self.hyperpm['lr'])
 
-    def get_loss(self, mean, logvar, disc_X_real, disc_X_prior, sim_X_real, sim_X_recon):
+    def get_loss_fid(self, X, X_recon, mean, logvar, disc_X_real, disc_X_prior, sim_X_real, sim_X_recon):
 
         KLD =  - 0.5 * torch.mean(1 + logvar - mean.pow(2) - logvar.exp())
         MSE = torch.mean((sim_X_real - sim_X_recon).pow(2))
@@ -44,14 +49,17 @@ class MyTrainer:
         loss_decoder = self.gamma * MSE - GAN
         loss_discriminator = GAN
 
+        FID = calculate_fid(X, X_recon)
+
         self.loss_dict['KLD'].append(KLD.item())
         self.loss_dict['MSE'].append(MSE.item())
         self.loss_dict['GAN'].append(GAN.item())
         self.loss_dict['loss_encoder'].append(loss_encoder.item())
         self.loss_dict['loss_decoder'].append(loss_decoder.item())
         self.loss_dict['loss_discriminator'].append(loss_discriminator.item())
+        self.loss_dict['FID'].append(FID.item())
 
-        return KLD, MSE, GAN, loss_encoder, loss_decoder, loss_discriminator
+        return KLD, MSE, GAN, loss_encoder, loss_decoder, loss_discriminator, FID
 
 
     def train(self):
@@ -73,7 +81,7 @@ class MyTrainer:
                     mean, logvar, X_recon, X_prior, disc_X_real, disc_X_prior, sim_X_real, sim_X_recon = self.model(X)
 
                     # Discriminate BCE(NLL)
-                    KLD, MSE, GAN, loss_encoder, loss_decoder, loss_discriminator = self.get_loss(mean, logvar, disc_X_real, disc_X_prior, sim_X_real, sim_X_recon)
+                    KLD, MSE, GAN, loss_encoder, loss_decoder, loss_discriminator, FID = self.get_loss_fid(X, X_recon, mean, logvar, disc_X_real, disc_X_prior, sim_X_real, sim_X_recon)
 
                     self.model.zero_grad()
                     # encoder
@@ -88,15 +96,34 @@ class MyTrainer:
                     self.decoder_optimizer.step()
                     self.discriminator_optimizer.step()
 
-
                     if (batch_idx % 100 == 0):
-                        with open(f"./result/loss/{epoch}_{batch_idx}.json", "w", encoding='utf8') as f:
-                            json.dump(self.loss_dict, f)
+                        with open(f"./result/loss/loss_fid.csv", "a", encoding = 'utf8') as f:
+                            # self.loss_dict['KLD'] = self.loss
+                            wf = csv.writer(f)
+                            loss_list = []
+                            loss_list.append(epoch)
+                            loss_list.append(batch_idx)
+                            loss_list.append(np.mean(self.loss_dict['KLD']))
+                            loss_list.append(np.mean(self.loss_dict['MSE']))
+                            loss_list.append(np.mean(self.loss_dict['GAN']))
+                            loss_list.append(np.mean(self.loss_dict['loss_encoder']))
+                            loss_list.append(np.mean(self.loss_dict['loss_decoder']))
+                            loss_list.append(np.mean(self.loss_dict['loss_discriminator']))
+                            loss_list.append(np.mean(self.loss_dict['FID']))
+                            wf.writerow(loss_list)
+
+                            self.loss_dict['KLD'] = []
+                            self.loss_dict['MSE'] = []
+                            self.loss_dict['GAN'] = []
+                            self.loss_dict['loss_encoder'] = []
+                            self.loss_dict['loss_decoder'] = []
+                            self.loss_dict['loss_discriminator'] = []
+                            self.loss_dict['FID'] = []
 
                     batch_pbar.write(
                         f'Epoch : {batch_idx}/{len(batch_pbar)} loss_encoder : {loss_encoder:.2f}    loss_decoder : {loss_decoder:.2f}   loss_discriminator : {loss_discriminator:.2f}')
                     batch_pbar.write(
-                        f'KLD : {KLD}   MSE : {MSE} GAN : {GAN}'
+                        f'KLD : {KLD}   MSE : {MSE} GAN : {GAN}  FID : {FID}'
                     )
                     batch_pbar.update()
 
@@ -108,8 +135,14 @@ class MyTrainer:
                     sample_prior = torch.randn(32, 128).to(self.device)
                     random_generated_images = self.model.decoder(sample_prior)
                     random_generated_images = (random_generated_images + 1) / 2
-                    file_name = f"result_{epoch}"
-                    save_image(random_generated_images, f"./result/{file_name}.png")
+                    save_image(random_generated_images, f"./result/random_generate_{epoch}.png")
+
+                    X_raw = X.clone()
+                    X_raw = (X_raw + 1) / 2
+                    save_image(X_raw, f"./result/raw_{epoch}.png")
+
+                    X_recon = (X_recon + 1) / 2
+                    save_image(X_recon, f"./result/recon_{epoch}.png")
 
             return self.model
 
