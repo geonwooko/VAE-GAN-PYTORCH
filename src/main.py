@@ -39,6 +39,7 @@ def main(in_dim = 784,
          dropout = 1e-1,
          gamma = 5,
          beta = 1,
+         cudanum = 0,
          datadir = "./datasets/"):
 
     hyperpm = {}
@@ -48,6 +49,7 @@ def main(in_dim = 784,
     hyperpm['hidden_dim2'] = hidden_dim2
     hyperpm['lr'] = lr
     hyperpm['nepoch'] =nepoch
+    hyperpm['cudanum'] = cudanum
     hyperpm['dropout_rate'] = dropout
     hyperpm['z_dim'] = 128
     hyperpm['gamma'] = gamma

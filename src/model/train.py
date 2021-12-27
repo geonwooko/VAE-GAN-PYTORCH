@@ -10,7 +10,7 @@ from loguru import logger
 
 class MyTrainer:
     def __init__(self, DL, hyperpm):
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = f'cuda:{hyperpm["cudanum"]}' if torch.cuda.is_available() else 'cpu'
         self.DL = DL
         self.hyperpm = hyperpm
         self.gamma = hyperpm['gamma']
@@ -84,7 +84,7 @@ class MyTrainer:
                 save_model(epoch, self.model)
 
             # Show the result from random generation
-            sample_prior = torch.randn(100, 128).to('cuda')
+            sample_prior = torch.randn(100, 128).to(self.device)
             random_generated_images = self.model.decoder(sample_prior)
             random_generated_images = (random_generated_images + 1) / 2
             file_name = f"result_{epoch}"

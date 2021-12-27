@@ -11,7 +11,7 @@ class VAE_GAN(nn.Module):
         self.decoder = Decoder()
         self.discriminator = Discriminator()
         self.init_parameters()
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = f'cuda:{hyperpm["cudanum"]}' if torch.cuda.is_available() else 'cpu'
 
     def init_parameters(self):
         # just explore the network, find every weight and bias matrix and fill it
