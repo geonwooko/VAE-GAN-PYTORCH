@@ -43,12 +43,12 @@ class MyTrainer:
         loss_decoder = self.gamma * MSE - GAN
         loss_discriminator = GAN
 
-        self.loss_dict['KLD'].append(KLD)
-        self.loss_dict['MSE'].append(MSE)
-        self.loss_dict['GAN'].append(GAN)
-        self.loss_dict['loss_encoder'].append(loss_encoder)
-        self.loss_dict['loss_decoder'].append(loss_decoder)
-        self.loss_dict['loss_discriminator'].append(loss_discriminator)
+        self.loss_dict['KLD'].append(KLD.item())
+        self.loss_dict['MSE'].append(MSE.item())
+        self.loss_dict['GAN'].append(GAN.item())
+        self.loss_dict['loss_encoder'].append(loss_encoder.item())
+        self.loss_dict['loss_decoder'].append(loss_decoder.item())
+        self.loss_dict['loss_discriminator'].append(loss_discriminator.item())
 
         return KLD, MSE, GAN, loss_encoder, loss_decoder, loss_discriminator
 
