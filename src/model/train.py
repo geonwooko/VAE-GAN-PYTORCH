@@ -89,25 +89,25 @@ class MyTrainer:
 
 
                     if (batch_idx % 100 == 0):
-                        pass
+                        with open(f"./result/loss/{epoch}_{batch_idx}.json", "w", encoding='utf8') as f:
+                            json.dump(self.loss_dict, f)
+
                     batch_pbar.write(
                         f'Epoch : {batch_idx}/{len(batch_pbar)} loss_encoder : {loss_encoder:.2f}    loss_decoder : {loss_decoder:.2f}   loss_discriminator : {loss_discriminator:.2f}')
                     batch_pbar.write(
                         f'KLD : {KLD}   MSE : {MSE} GAN : {GAN}'
                     )
                     batch_pbar.update()
-                    with open(f"./result/loss/{epoch}_{batch_idx}.json", "w", encoding='utf8') as f:
-                        json.dump(self.loss_dict, f)
 
                 # Save the parameters
                 save_model(epoch, self.model, self.device)
 
-            # Show the result from random generation
-            sample_prior = torch.randn(100, 128).to(self.device)
-            random_generated_images = self.model.decoder(sample_prior)
-            random_generated_images = (random_generated_images + 1) / 2
-            file_name = f"result_{epoch}"
-            show_and_save(file_name=file_name, img=random_generated_images.to('cpu'))
+                # Show the result from random generation
+                sample_prior = torch.randn(100, 128).to(self.device)
+                random_generated_images = self.model.decoder(sample_prior)
+                random_generated_images = (random_generated_images + 1) / 2
+                file_name = f"result_{epoch}"
+                show_and_save(file_name=file_name, img=random_generated_images.to('cpu'))
 
             return self.model
 
