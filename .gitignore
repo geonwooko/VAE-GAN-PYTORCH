@@ -1,0 +1,13 @@
+*.zip
+
+*.ipynb
+
+*.idea
+
+Pytorch-VAE-GAN
+
+datasets
+
+*.pth
+
+*.pyc
