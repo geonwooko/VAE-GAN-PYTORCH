@@ -95,11 +95,8 @@ class MyTrainer:
                     self.model.discriminator.zero_grad()
                     loss_discriminator.backward()
                     self.encoder_optimizer.step()
-                    self.encoder_scheduler.step()
                     self.decoder_optimizer.step()
-                    self.decoder_scheduler.step()
                     self.discriminator_optimizer.step()
-                    self.discriminator_scheduler.step()
 
                     if (batch_idx % 100 == 0):
                         with open(f"./result/loss/loss_fid.csv", "a", encoding = 'utf8') as f:
@@ -134,6 +131,9 @@ class MyTrainer:
 
                 # Save the parameters
                 save_model(epoch, self.model, self.device)
+                self.encoder_scheduler.step()
+                self.decoder_scheduler.step()
+                self.discriminator_scheduler.step()
 
                 # Show the result from random generation
                 with torch.no_grad():
