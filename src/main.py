@@ -5,7 +5,7 @@ import fire
 
 def run_model(hyperpm):
     data_root = hyperpm['datadir']
-    CelebA_DL = get_CelebA_DL(data_root, hyperpm['cudanum'], hyperpm['batchsize'])
+    CelebA_DL = get_CelebA_DL(data_root, hyperpm['cudanum'], hyperpm['batchsize'], shuffle=False)
 
     trainer = MyTrainer(CelebA_DL, hyperpm)
     model = trainer.train()
