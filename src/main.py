@@ -1,35 +1,18 @@
-from loguru import logger
 from model.train import MyTrainer
-from utils import log_param
+from utils import log_param, find_latent_space_and_show
 from data import get_CelebA_DL
-from torchvision import datasets, transforms
 import fire
-import torch
-
-from torchvision.utils import save_image
-
-def reconstruct_random_image(model):
-    pass
-
-def generate_random_image(model):
-    with torch.no_grad():
-        device = "cuda" if torch.cuda.is_available() else 'cpu'
-        X_lim = torch.linspace(-2.5, 2.5, 8)
-        Y_lim = torch.linspace(-2.5, 2.5, 8)
-        grid_X, grid_Y = torch.meshgrid(X_lim, Y_lim, indexing = 'ij')
-
-        z = torch.hstack([grid_X.reshape(-1, 1), grid_Y.reshape(-1, 1)]).to(device)
-        sample = model.decoder(z)
-
-        save_image(sample.view(64, 1, 28, 28), './sample3.png')
 
 def run_model(hyperpm):
-    CelebA_DL = get_CelebA_DL(hyperpm['datadir'], hyperpm['cudanum'], hyperpm['batchsize'])
+    data_root = hyperpm['datadir']
+    CelebA_DL, CelebA_DS = get_CelebA_DL(data_root, hyperpm['cudanum'], hyperpm['batchsize'])
 
     trainer = MyTrainer(CelebA_DL, hyperpm)
     model = trainer.train()
     
-    generate_random_image(model)
+    find_latent_space_and_show(model, CelebA_DL, data_root, hyperpm['num_show_images'])
+
+
 
 def main(in_dim = 784,
          hidden_dim1 = 512,
@@ -41,6 +24,7 @@ def main(in_dim = 784,
          beta = 10,
          cudanum = 0,
          batchsize = 64,
+         num_show_images = 10,
          datadir = "./datasets/"):
 
     hyperpm = {}
@@ -57,6 +41,7 @@ def main(in_dim = 784,
     hyperpm['datadir'] = datadir
     hyperpm['beta'] = beta
     hyperpm['batchsize'] = batchsize
+    hyperpm['num_show_images'] = num_show_images
     log_param(hyperpm)
 
     run_model(hyperpm)
