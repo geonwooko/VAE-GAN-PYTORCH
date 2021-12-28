@@ -62,7 +62,7 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
     attr_list = ['raw', 'recon'] + attr_list
     N, K = num_show_images, len(attr_list)
     plt.rcParams['figure.figsize'] = (8 * N, 6 * K)
-    fig, axs = plt.figure(N, K)
+    fig, axs = plt.subplot(N, K)
 
     for i in range(N):
         for j, attr in enumerate(attr_list):
@@ -71,5 +71,6 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
                 axs[i, j].set_xlabel(f"{attr}", rotation=45)
 
     # plt.imshow(npimg)
+    plt.title("Change the latent space with labels")
     plt.savefig(f"./result/change_latent.png", dpi=300)
     plt.clf()
