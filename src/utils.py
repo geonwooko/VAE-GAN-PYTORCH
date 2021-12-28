@@ -54,7 +54,8 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
         sign = 1 if latent_mean_diff[latent_axis] > 0 else -1
         attr_latent_axis[attr] = (latent_axis, sign)
 
-        attr_changed_latent = img_latent[:, latent_axis] + (sign * 3)
+        attr_changed_latent = img_latent.clone()
+        attr_changed_latent[:, latent_axis] += (sign * 3)
         print(img_latent.shape, latent_axis, sign)
 
         changed_img = model.decoder(attr_changed_latent).unsqueeze(dim=1)
