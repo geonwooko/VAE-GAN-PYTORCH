@@ -26,7 +26,6 @@ def find_latent_space_and_show(model, DataLoader,  data_root, num_show_images):
                 latent_embedding = z_mean
             else:
                 latent_embedding = torch.cat([latent_embedding, z_mean], dim = 0)
-            print(latent_embedding.shape)
 
     # latent_embedding = torch.stack(latent_embedding, dim = 0) # number of images X z_dim
 
@@ -43,7 +42,7 @@ def find_latent_space_and_show(model, DataLoader,  data_root, num_show_images):
         latent_mean_false = latent_embedding[mask_false].mean(dim=0).reshape(-1)
 
         latent_mean_diff = latent_mean_true - latent_mean_false
-        latent_axis = torch.argmax(torch.abs(latent_mean_diff)).cpu().items()
+        latent_axis = torch.argmax(torch.abs(latent_mean_diff)).cpu().item()
         sign = 1 if latent_mean_diff[latent_axis] > 0 else -1
         attr_latent_axis[attr] = (latent_axis, sign)
 
