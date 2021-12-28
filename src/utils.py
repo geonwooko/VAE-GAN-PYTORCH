@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from tqdm import tqdm
-
+from os.path import exists
 
 def log_param(param):
     for key, value in param.items():
@@ -21,15 +21,18 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
     print(device)
     with torch.no_grad():
         for X, _ in tqdm(DataLoader):
+            if exists("latent_embedding.pt"):
+                latent_embedding = torch.load("latent_embedding.pt").to(device)
+                break
+
             X = X.to(device)
-
             z_mean, _ = model.encoder(X)  # batchsize X z_dim
-
             if latent_embedding is None:
                 latent_embedding = z_mean
             else:
                 latent_embedding = torch.cat([latent_embedding, z_mean], dim=0)
 
+    torch.save(latent_embedding.cpu(), "latent_embedding.pt")
     # latent_embedding = torch.stack(latent_embedding, dim = 0) # number of images X z_dim
 
     attr_latent_axis = {}
@@ -56,11 +59,11 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
 
         attr_changed_latent = img_latent.clone()
         attr_changed_latent[:, latent_axis] += (sign * 100)
-        print(latent_axis, sign)
+        print(latent_axis, sign, (attr_changed_latent[:, latent_axis] - img_latent[:, latent_axis]).sum())
         # print(f"raw : {img_latent}, changed : {attr_changed_latent}")
         changed_img = model.decoder(attr_changed_latent).unsqueeze(dim=1)
         img = torch.cat([img, changed_img], dim=1)
-        print(img.shape, changed_img - img_recon.unsqueeze(1))
+        print(img.shape, (changed_img - img_recon.unsqueeze(1)).sum())
 
     img = torch.permute(img, (0, 1, 3, 4, 2)).cpu().detach().numpy()
     attr_list = ['raw', 'recon'] + attr_list
