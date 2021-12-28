@@ -55,11 +55,12 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
         attr_latent_axis[attr] = (latent_axis, sign)
 
         attr_changed_latent = img_latent.clone()
-        attr_changed_latent[:, latent_axis] += (sign * 3)
+        attr_changed_latent[:, latent_axis] += (sign * 10)
         print(img_latent.shape, latent_axis, sign)
 
         changed_img = model.decoder(attr_changed_latent).unsqueeze(dim=1)
         img = torch.cat([img, changed_img], dim=1)
+        print(img.shape, attr_changed_latent)
 
     img = torch.permute(img, (0, 1, 3, 4, 2)).cpu().detach().numpy()
     attr_list = ['raw', 'recon'] + attr_list
@@ -71,7 +72,7 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
         for j, attr in enumerate(attr_list):
             axs[i, j].imshow((img[i, j, :, :, :] + 1) / 2)
             if i == N - 1:
-                axs[i, j].set_xlabel(f"{attr}", rotation=45)
+                axs[i, j].set_xlabel(f"{attr}", rotation=45, fontdict={'size' : 100})
 
     # plt.imshow(npimg)
     plt.title("Change the latent space with labels")
