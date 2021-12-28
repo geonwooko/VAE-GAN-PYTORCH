@@ -62,7 +62,7 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
         print(latent_axis, sign, (attr_changed_latent[:, latent_axis] - img_latent[:, latent_axis]).sum())
         # print(f"raw : {img_latent}, changed : {attr_changed_latent}")
         changed_img = model.decoder(attr_changed_latent).unsqueeze(dim=1)
-        img = torch.cat([img, torch.zeros(changed_img, device=device)], dim=1)
+        img = torch.cat([img, torch.zeros_like(changed_img, device=device)], dim=1)
         print(img.shape, (changed_img - img_recon.unsqueeze(1)).sum())
 
     img = torch.permute(img, (0, 1, 3, 4, 2)).cpu().detach().numpy()
