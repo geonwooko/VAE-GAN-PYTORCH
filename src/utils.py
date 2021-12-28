@@ -34,7 +34,9 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
     attr_latent_axis = {}
 
     img = X[:num_show_images, :]
-    _, _, img_recon, img_latent, _, _, _, _ = model(img)
+    img_latent_mean, img_latent_logvar = model.encoder(img)
+    img_latent = model.sample_with_reparameterization(img_latent_mean, img_latent_logvar)
+    img_recon = model.decoder(img_latent)
     img = torch.cat([img.unsqueeze(1), img_recon.unsqueeze(1)], dim=1)
 
     for attr in attr_list:
