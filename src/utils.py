@@ -46,8 +46,10 @@ def find_latent_space_and_show(model, DataLoader,  data_root, num_show_images):
         sign = 1 if latent_mean_diff[latent_axis] > 0 else -1
         attr_latent_axis[attr] = (latent_axis, sign)
 
-        latent_changed = z_mean[:, latent_axis] + (sign * 3)
-        changed_img = model.decoder(latent_changed).unsqueeze(dim = 1)
+        print(z_mean.shape, latent_axis, sign)
+        z_mean[:, latent_axis] += (sign * 3)
+
+        changed_img = model.decoder(z_mean).unsqueeze(dim = 1)
         img = torch.cat([img,changed_img], dim = 1)
 
 
