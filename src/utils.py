@@ -13,15 +13,22 @@ def find_latent_space_and_show(model, DataLoader,  data_root, num_show_images):
     attr_list = ['Bald', 'Bangs', 'Eyeglasses', 'Male', 'Mustache', 'Pale_Skin', 'Smiling', 'Black_Hair', 'Blond_Hair', 'Wearing_Lipstick']
     attr_table = pd.read_csv(f"{data_root}list_attr_celeba.csv", header = 0, encoding='utf8')
 
-    latent_embedding = []
+    latent_embedding = None
     device = model.device
+    print(device)
     with torch.no_grad():
         for X, _ in DataLoader:
             X = X.to(device)
-            z_mean, _ = model.encoder(X) # batchsize X z_dim
-            latent_embedding.append(z_mean)
 
-    latent_embedding = torch.stack(latent_embedding, dim = 0) # number of images X z_dim
+            z_mean, _ = model.encoder(X) # batchsize X z_dim
+
+            if latent_embedding is None:
+                latent_embedding = z_mean
+            else:
+                latent_embedding = torch.cat([latent_embedding, z_mean], dim = 0)
+            print(latent_embedding.shape)
+
+    # latent_embedding = torch.stack(latent_embedding, dim = 0) # number of images X z_dim
 
     attr_latent_axis = {}
 
