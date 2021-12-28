@@ -66,7 +66,7 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
 
     for i in range(N):
         for j, attr in enumerate(attr_list):
-            axs[i, j].plot(img[i, j, :, :, :])
+            axs[i, j].imshow(img[i, j, :, :, :])
             if i == N - 1:
                 axs[i, j].set_xlabel(f"{attr}", rotation=45)
 
