@@ -60,7 +60,7 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
         changed_img = model.decoder(img_latent).unsqueeze(dim=1)
         img = torch.cat([img, changed_img], dim=1)
 
-    img = torch.transpose(img, (0, 1, 3, 4, 2)).cpu().detach().numpy()
+    img = torch.permute(img, (0, 1, 3, 4, 2)).cpu().detach().numpy()
     attr_list = ['raw', 'recon'] + attr_list
     N, K = num_show_images, len(attr_list)
     plt.rcParams['figure.figsize'] = (8 * N, 6 * K)
