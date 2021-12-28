@@ -23,7 +23,7 @@ class VAE_GAN(nn.Module):
                 if hasattr(m, "bias") and m.bias is not None and m.bias.requires_grad:
                     m.bias.data = torch.zeros_like(m.bias.data)
 
-    def sample_with_reparmeterization(self, mean, logvar):
+    def sample_with_reparameterization(self, mean, logvar):
         std = torch.sqrt(torch.exp(logvar))
         gaussian_sample = torch.randn(std.shape).to(self.device)
         return mean + std * gaussian_sample
@@ -31,7 +31,7 @@ class VAE_GAN(nn.Module):
     def forward(self, X):
         mean, logvar = self.encoder(X)
 
-        Z = self.sample_with_reparmeterization(mean, logvar)
+        Z = self.sample_with_reparameterization(mean, logvar)
         Z_prior = torch.randn(mean.shape).to(self.device) # sample prior ~ N(0,1)
         X_recon = self.decoder(Z)
         X_prior = self.decoder(Z_prior)
