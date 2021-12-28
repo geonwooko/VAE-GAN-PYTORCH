@@ -37,7 +37,7 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
 
     attr_latent_axis = {}
 
-    img = X[:num_show_images, :]
+    img = X[:num_show_images, :].to(device)
     img_latent_mean, img_latent_logvar = model.encoder(img)
     img_latent = model.sample_with_reparameterization(img_latent_mean, img_latent_logvar)
     img_recon = model.decoder(img_latent)
