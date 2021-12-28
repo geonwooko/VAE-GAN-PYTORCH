@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from tqdm import tqdm
 
+
 def log_param(param):
     for key, value in param.items():
         logger.info(f"{key} : {value}")
@@ -59,6 +60,7 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
         changed_img = model.decoder(img_latent).unsqueeze(dim=1)
         img = torch.cat([img, changed_img], dim=1)
 
+    img = torch.permute(img, (0, 1, 3, 4, 2))
     attr_list = ['raw', 'recon'] + attr_list
     N, K = num_show_images, len(attr_list)
     plt.rcParams['figure.figsize'] = (8 * N, 6 * K)
