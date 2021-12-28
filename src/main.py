@@ -11,7 +11,8 @@ def run_model(hyperpm):
     model = trainer.train()
     del CelebA_DL
 
-    find_latent_space_and_show(model, CelebA_DL, data_root, hyperpm['num_show_images'])
+    non_shuffle_CelebA_DL = get_CelebA_DL(data_root, hyperpm['cudanum'], hyperpm['batchsize'], shuffle=False)
+    find_latent_space_and_show(model, non_shuffle_CelebA_DL, data_root, hyperpm['num_show_images'])
 
 
 
