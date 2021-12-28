@@ -3,7 +3,7 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-
+from tqdm import tqdm
 
 def log_param(param):
     for key, value in param.items():
@@ -19,7 +19,7 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
     device = model.device
     print(device)
     with torch.no_grad():
-        for X, _ in DataLoader:
+        for X, _ in tqdm(DataLoader):
             X = X.to(device)
 
             z_mean, _ = model.encoder(X)  # batchsize X z_dim
