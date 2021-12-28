@@ -62,7 +62,7 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
     attr_list = ['raw', 'recon'] + attr_list
     N, K = num_show_images, len(attr_list)
     plt.rcParams['figure.figsize'] = (8 * N, 6 * K)
-    fig, axs = plt.subplot(N, K)
+    fig, axs = plt.subplots(N, K)
 
     for i in range(N):
         for j, attr in enumerate(attr_list):
