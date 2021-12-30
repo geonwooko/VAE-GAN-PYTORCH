@@ -71,7 +71,7 @@ class MyTrainer:
             for epoch in epoch_pbar:
                 # Save file 존재할때 불러옴
                 if exists(f'./result/parameters/VAE_GAN_decoder_{self.hyperpm["nepoch"]}.pth'):
-                    load_model(epoch, self.model, self.device)
+                    load_model(self.hyperpm['nepoch'], self.model, self.device)
                     break
 
                 losses = []

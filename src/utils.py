@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from tqdm import tqdm
 from os.path import exists
+from torchvision.utils import save_image
 
 def log_param(param):
     for key, value in param.items():
@@ -53,12 +54,15 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
         latent_mean_false = latent_embedding[mask_false].mean(dim=0).reshape(-1)
 
         latent_mean_diff = latent_mean_true - latent_mean_false
-        latent_axis = torch.argmax(torch.abs(latent_mean_diff)).cpu().item()
+        latent_axis = torch.argmax(torch.abs(latent_mean_diff)).cpu()
+
+
         sign = 1 if latent_mean_diff[latent_axis] > 0 else -1
         attr_latent_axis[attr] = (latent_axis, sign)
 
         attr_changed_latent = img_latent.clone()
-        attr_changed_latent[:, latent_axis] = (sign * 30)
+        print(attr_changed_latent[:, latent_axis])
+        attr_changed_latent[:, latent_axis] -= (sign * 100000000)
         print(latent_axis, sign, (attr_changed_latent[:, latent_axis] - img_latent[:, latent_axis]).sum())
         # print(f"raw : {img_latent}, changed : {attr_changed_latent}")
         changed_img = model.decoder(attr_changed_latent).unsqueeze(dim=1)
@@ -70,13 +74,11 @@ def find_latent_space_and_show(model, DataLoader, data_root, num_show_images):
     N, K = num_show_images, len(attr_list)
     plt.rcParams['figure.figsize'] = (8 * N, 6 * K)
     fig, axs = plt.subplots(N, K)
-
     for i in range(N):
         for j, attr in enumerate(attr_list):
             axs[i, j].imshow((img[i, j, :, :, :] + 1) / 2)
             if i == N - 1:
                 axs[i, j].set_xlabel(f"{attr}", rotation=45, fontdict={'size' : 100})
-
     # plt.imshow(npimg)
     plt.title("Change the latent space with labels")
     plt.savefig(f"./result/change_latent.png", dpi=300)
