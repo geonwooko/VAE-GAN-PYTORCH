@@ -13,3 +13,6 @@ datasets
 *.pyc
 
 *.json
+
+*.csv
+
