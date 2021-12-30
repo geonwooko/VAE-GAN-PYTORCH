@@ -48,7 +48,7 @@ python3 ./src/main.py\
 | `lr` | Learning rate | `3e-4`|
 | `nepoch` | Maximum number of epochs to train | `20`|
 | `gamma` | Weight value between reconstruction and discrimination | `15`|
-| `beta` | Weight value about KLD and reconstruction | `5`|
+| `beta` | Weight value between KLD and reconstruction | `5`|
 | `zdim` | Dimension of latent space | `128`|
 | `device` | Training device | `cuda`|
 | `batchsize` | Batch size of training data |`64`|
